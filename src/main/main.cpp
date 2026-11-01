@@ -1,8 +1,5 @@
 #include <cstdio>
 #include <cassert>
-#include <chrono>
-#include <iostream>
-#include <thread>
 #include <unordered_map>
 #include <vector>
 #include <array>
@@ -691,9 +688,7 @@ int main(int argc, char** argv) {
     };
 
     std::thread t1([] {
-        using namespace std::chrono_literals;
-
-        std::this_thread::sleep_for(1000ms);
+        for (volatile int i = 0; i < 1000000; i++);
         bool mm_rom_valid = false;
 
         ultramodern::set_native_thread_name("ROM selection thread");
@@ -711,15 +706,13 @@ int main(int argc, char** argv) {
         if (mm_rom_valid) {
             recomp::start_game(supported_games[0].game_id, std::string("Main Game"));
         }
-
-        while (1);
     });
 
     recomp::start(
         kirby_game_config
     );
 
-    // t1.join();
+    t1.join();
 
     NFD_Quit();
 
