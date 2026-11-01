@@ -1,0 +1,119 @@
+name: Kirby 64 Recomp Linux
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            clang \
+            lld \
+            llvm \
+            llvm-dev \
+            cmake \
+            ninja-build \
+            pkg-config \
+            python3 \
+            libsdl2-dev \
+            libfreetype-dev \
+            libgtk-3-dev
+
+      - name: Show compiler versions
+        run: |
+          clang --version
+          clang++ --version
+          cmake --version
+          ninja --version
+
+      - name: Configure Makefile for Ubuntu Clang
+        run: |
+          sed -i \
+            -e 's/LLVM_VER := 21/LLVM_VER := 18/' \
+            -e 's#CLANG_EXE := .*#CLANG_EXE := /usr/bin/clang#' \
+            -e 's#CLANGXX_EXE := .*#CLANGXX_EXE := /usr/bin/clang++#' \
+            Makefile
+
+          grep -nEi 'LLVM_VER|CLANG_EXE|CLANGXX_EXE' Makefile
+
+      - name: Verify submodules
+        run: |
+          git submodule status
+          git submodule update --init --recursive
+
+      - name: Build
+        run: |
+          make -j"$(nproc)"
+
+      - name: Verify executable
+        run: |
+          test -x build/Kirby64Recompiled
+          file build/Kirby64Recompiled
+          file build/Kirby64Recompiled | grep -q 'ELF 64-bit.*x86-64'
+
+          missing="$(ldd build/Kirby64Recompiled | grep 'not found' || true)"
+          if [ -n "$missing" ]; then
+            echo "Missing shared libraries:"
+            echo "$missing"
+            exit 1
+          fi
+
+      - name: Prepare package
+        run: |
+          rm -rf package
+          mkdir -p package/Kirby64Recompiled-linux-x64
+
+          cp build/Kirby64Recompiled \
+             package/Kirby64Recompiled-linux-x64/
+
+          cp -r build/assets \
+             package/Kirby64Recompiled-linux-x64/ 2>/dev/null || true
+
+          cp build/recompcontrollerdb.txt \
+             package/Kirby64Recompiled-linux-x64/ 2>/dev/null || true
+
+          cp README.md \
+             package/Kirby64Recompiled-linux-x64/ 2>/dev/null || true
+
+          cat > package/Kirby64Recompiled-linux-x64/run.sh <<'EOF'
+          #!/bin/sh
+          set -eu
+          cd "$(dirname "$(readlink -f "$0")")"
+          exec ./Kirby64Recompiled "$@"
+          EOF
+
+          chmod +x \
+            package/Kirby64Recompiled-linux-x64/Kirby64Recompiled \
+            package/Kirby64Recompiled-linux-x64/run.sh
+
+          tar -czf \
+            package/Kirby64Recompiled-linux-x64.tar.gz \
+            -C package \
+            Kirby64Recompiled-linux-x64
+
+          tar -tzf package/Kirby64Recompiled-linux-x64.tar.gz
+
+      - name: Upload Linux package
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kirby64Recompiled-linux-x64
+          path: package/Kirby64Recompiled-linux-x64.tar.gz
+          if-no-files-found: error
