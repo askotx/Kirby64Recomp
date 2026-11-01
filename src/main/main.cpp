@@ -534,7 +534,6 @@ void reorder_texture_pack(recomp::mods::ModContext&) {
 
 #define REGISTER_FUNC(name) recomp::overlays::register_base_export(#name, name)
 
-
 int main(int argc, char** argv) {
     (void)argc;
     (void)argv;
@@ -617,7 +616,7 @@ int main(int argc, char** argv) {
     REGISTER_FUNC(recomp_get_mouse_deltas);
     REGISTER_FUNC(recomp_get_inverted_axes);
     REGISTER_FUNC(recomp_get_analog_inverted_axes);
-    // recompui::register_ui_exports();
+    recompui::register_ui_exports();
     // recomputil::register_data_api_exports();
 
     zelda64::register_overlays();
@@ -654,11 +653,11 @@ int main(int argc, char** argv) {
 
     ultramodern::events::callbacks_t thread_callbacks{
         .vi_callback = recomp::update_rumble,
-        // .gfx_init_callback = recompui::update_supported_options,
+        .gfx_init_callback = recompui::update_supported_options,
     };
 
     ultramodern::error_handling::callbacks_t error_handling_callbacks{
-        // .message_box = recompui::message_box,
+        .message_box = recompui::message_box,
     };
 
     ultramodern::threads::callbacks_t threads_callbacks{

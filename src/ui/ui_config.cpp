@@ -19,13 +19,6 @@ Rml::DataModelHandle controls_model_handle;
 Rml::DataModelHandle graphics_model_handle;
 Rml::DataModelHandle sound_options_model_handle;
 
-bool zelda64::get_debug_mode_enabled() {
-    return false;
-}
-void zelda64::set_debug_mode_enabled(bool set_it) {
-    (void)set_it;
-}
-
 // True if controller config menu is open, false if keyboard config menu is open, undefined otherwise
 bool configuring_controller = false;
 
@@ -156,6 +149,24 @@ void recomp::config_menu_set_cont_or_kb(bool cont_interacted) {
     }
 }
 
+void close_config_menu_impl() {
+    zelda64::save_config();
+
+    recompui::ContextId config_context = recompui::get_config_context_id();
+    recompui::ContextId sub_menu_context = recompui::get_config_sub_menu_context_id();
+
+    if (recompui::is_context_shown(sub_menu_context)) {
+    	recompui::hide_context(sub_menu_context);
+    }
+    else {
+    	recompui::hide_context(config_context);
+    }
+
+    if (!ultramodern::is_game_started()) {
+        recompui::show_context(recompui::get_launcher_context_id(), "");
+    }
+}
+
 // TODO: Remove once RT64 gets native fullscreen support on Linux
 #if defined(__linux__)
 extern SDL_Window* window;
@@ -196,6 +207,8 @@ void close_config_menu() {
         );
         return;
     }
+
+    close_config_menu_impl();
 }
 
 void zelda64::open_quit_game_prompt() {
