@@ -21,6 +21,10 @@ namespace Rml {
     class Event;
 }
 
+namespace Rml {
+    class ElementDocument;
+}
+
 namespace recompui {
     class UiEventListenerInstancer;
 
@@ -30,7 +34,7 @@ namespace recompui {
         virtual ~MenuController() {}
         virtual void load_document() = 0;
         virtual void register_events(UiEventListenerInstancer& listener) = 0;
-        // virtual void make_bindings(Rml::Context* context) = 0;
+        virtual void make_bindings(Rml::Context* context) = 0;
     };
 
     std::unique_ptr<MenuController> create_launcher_menu();
@@ -68,8 +72,8 @@ namespace recompui {
 
     void set_config_tab(ConfigTab tab);
     int config_tab_to_index(ConfigTab tab);
-    // Rml::ElementTabSet* get_config_tabset();
-    // Rml::Element* get_mod_tab();
+    Rml::ElementTabSet* get_config_tabset();
+    Rml::Element* get_mod_tab();
     void set_config_tabset_mod_nav();
     void focus_mod_configure_button();
 
@@ -129,10 +133,10 @@ namespace recompui {
 
     void set_render_hooks();
 
-    // Rml::ElementPtr create_custom_element(Rml::Element* parent, std::string tag);
-    // Rml::ElementDocument* load_document(const std::filesystem::path& path);
-    // Rml::ElementDocument* create_empty_document();
-    // Rml::Element* get_child_by_tag(Rml::Element* parent, const std::string& tag);
+    Rml::ElementPtr create_custom_element(Rml::Element* parent, std::string tag);
+    Rml::ElementDocument* load_document(const std::filesystem::path& path);
+    Rml::ElementDocument* create_empty_document();
+    Rml::Element* get_child_by_tag(Rml::Element* parent, const std::string& tag);
 
     void queue_image_from_bytes_rgba32(const std::string &src, const std::vector<char> &bytes, uint32_t width, uint32_t height);
     void queue_image_from_bytes_file(const std::string &src, const std::vector<char> &bytes);

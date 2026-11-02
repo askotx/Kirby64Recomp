@@ -27,7 +27,7 @@ jobs:
         retention-days: 1
         path: |
           build/Kirby64Recompiled
-          recompcontrollerdb.txt
+          gamecontrollerdb.txt
           assets/README.txt
 
   build-windows:
@@ -110,7 +110,7 @@ jobs:
             dxil.dll
             SDL2.dll
             assets/
-            recompcontrollerdb.txt
+            gamecontrollerdb.txt
       - name: Archive Debug Files
         uses: actions/upload-artifact@v7
         with:

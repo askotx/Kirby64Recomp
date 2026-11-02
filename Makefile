@@ -33,7 +33,7 @@ build/:
 # 	$(MAKE) -C build
 build/Kirby64Recompiled: build/
 	CLICOLOR_FORCE=1 ninja $(JOB_FLAG) -C build
-	cp recompcontrollerdb.txt build/
+	cp gamecontrollerdb.txt build/
 	cp assets/README.txt build/
 
 clean:

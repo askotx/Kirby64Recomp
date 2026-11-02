@@ -87,7 +87,7 @@ jobs:
           cp -r build/assets \
              package/Kirby64Recompiled-linux-x64/ 2>/dev/null || true
 
-          cp build/recompcontrollerdb.txt \
+          cp build/gamecontrollerdb.txt \
              package/Kirby64Recompiled-linux-x64/ 2>/dev/null || true
 
           cp README.md \
